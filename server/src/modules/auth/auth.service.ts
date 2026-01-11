@@ -2,7 +2,20 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../config/db";
 
-export const signupUser = async (data: any) => {
+interface SignupInput {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface LoginInput {
+  email: string;
+  password: string;
+}
+
+const SALT_ROUNDS = 10;
+
+export const signupUser = async (data: SignupInput) => {
   const existingUser = await prisma.user.findUnique({
     where: { email: data.email },
   });
@@ -11,20 +24,24 @@ export const signupUser = async (data: any) => {
     throw new Error("User already exists");
   }
 
-  const hashedPassword = await bcrypt.hash(data.password, 10);
+  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
-  const user = await prisma.user.create({
+  return prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
       password: hashedPassword,
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+    },
   });
-
-  return user;
 };
 
-export const loginUser = async (data: any) => {
+export const loginUser = async (data: LoginInput) => {
   const user = await prisma.user.findUnique({
     where: { email: data.email },
   });
@@ -33,16 +50,31 @@ export const loginUser = async (data: any) => {
     throw new Error("Invalid credentials");
   }
 
-  const isMatch = await bcrypt.compare(data.password, user.password);
-  if (!isMatch) {
+  const isPasswordValid = await bcrypt.compare(
+    data.password,
+    user.password
+  );
+
+  if (!isPasswordValid) {
     throw new Error("Invalid credentials");
+  }
+
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT secret not configured");
   }
 
   const token = jwt.sign(
     { userId: user.id },
-    process.env.JWT_SECRET!,
+    process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 
-  return { token, user };
+  return {
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+  };
 };
