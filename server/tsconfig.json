@@ -11,7 +11,7 @@
     "moduleResolution": "node",
 
     "typeRoots": ["./node_modules/@types", "./src/types"],
-     "types": ["node"],   //htaana hai
+        //htaana hai
 
 
     "strict": true,
