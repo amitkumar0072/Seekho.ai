@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 
 export const errorHandler = (
-  err: any,
+    err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   res.status(500).json({
-    message: err.message || "Something went wrong",
+    message: err.message || "Something went wrong , Please try again",
   });
 };
