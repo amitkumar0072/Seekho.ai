@@ -13,7 +13,7 @@ export const authMiddleware = (
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ message: "Authorization token missing" });
+    res.status(401).json({ message: "Authorization token missing, Please signup first" });
     return;
   }
 
