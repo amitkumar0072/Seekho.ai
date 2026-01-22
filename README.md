@@ -1,4 +1,4 @@
-# AI English Tutor 🎙️📘
+# AI English Tutor🎙️📘
 
 An AI-powered full-stack application that helps users improve their English speaking skills through real-time conversational practice with an AI assistant.
 
